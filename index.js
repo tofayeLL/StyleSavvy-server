@@ -69,6 +69,14 @@ async function run() {
 
 
 
+      // Parse and apply price range filter separately
+      if (priceRange) {
+        const [minPrice, maxPrice] = priceRange.split('-').map(Number);
+        searchQuery.price = { $gte: minPrice, $lte: maxPrice };
+      }
+
+
+
 
       // for sorting data depends on price low to high and hight to low and newest date
       let sortProduct = {};
@@ -77,10 +85,7 @@ async function run() {
       } else if (sort === 'priceDesc') {
         sortProduct = { price: -1 };
       }
-      /* else if (sort === 'dateDesc') {
-        sortProduct = { createdDate: -1 };
-      } */
-
+    
       else if (sort === 'dateDesc') {
 
         // Sorting by date string
@@ -88,8 +93,8 @@ async function run() {
 
         products.sort((a, b) => {
 
-          // Convert "dd-mm-yyyy" to "yyyy-mm-dd"
-          const dateA = a.createdDate.split('-').reverse().join('-'); 
+          // Convert date "dd-mm-yyyy" to "yyyy-mm-dd"
+          const dateA = a.createdDate.split('-').reverse().join('-');
 
           const dateB = b.createdDate.split('-').reverse().join('-');
           return new Date(dateB) - new Date(dateA);
