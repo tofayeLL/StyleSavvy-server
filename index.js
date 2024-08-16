@@ -48,7 +48,7 @@ async function run() {
     app.get('/products', async (req, res) => {
 
 
-      const { page = 1, limit = 8, search = '', sort = '', category = '', brand = '' } = req.query;
+      const { page = 1, limit = 8, search = '', sort = '', category = '', brand = '', priceRange = '' } = req.query;
 
       const pageNum = parseInt(page);
       const limitNum = parseInt(limit);
@@ -90,7 +90,7 @@ async function run() {
 
           // Convert "dd-mm-yyyy" to "yyyy-mm-dd"
           const dateA = a.createdDate.split('-').reverse().join('-'); 
-          
+
           const dateB = b.createdDate.split('-').reverse().join('-');
           return new Date(dateB) - new Date(dateA);
         });
