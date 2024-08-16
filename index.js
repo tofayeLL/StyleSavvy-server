@@ -41,42 +41,39 @@ async function run() {
 
 
 
-    //  get all products
+    //  get all products and also set limit form pagination
     app.get('/products', async (req, res) => {
 
-      /*  const result = await productCollection.find().toArray();
-       res.send(result); */
 
 
-      const { page = 1, limit = 8 } = req.query;
 
-      const pageNum = parseInt(page);
-      const limitNum = parseInt(limit);
+      const { page = 1, limit = 8, search = '' } = req.query;
 
-      const skip = (pageNum - 1) * limitNum;
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
 
-      const products = await productCollection.find()
+    const searchQuery = search ? { productName: { $regex: search, $options: 'i' } } : {};
+
+    const products = await productCollection.find(searchQuery)
         .skip(skip)
         .limit(limitNum)
         .toArray();
 
-      const totalProducts = await productCollection.countDocuments();
+    const totalProducts = await productCollection.countDocuments(searchQuery);
 
-      res.send({
+    res.send({
         products,
         totalPages: Math.ceil(totalProducts / limitNum),
         currentPage: pageNum,
-      });
-
-
-
-
-
-
-
-
+    });
 
     })
+
+
+
+    /*  const result = await productCollection.find().toArray();
+       res.send(result); */
 
 
 
