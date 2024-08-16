@@ -85,7 +85,10 @@ async function run() {
       } else if (sort === 'priceDesc') {
         sortProduct = { price: -1 };
       }
-    
+      /* else if (sort === 'dateDesc') {
+        sortProduct = { createdDate: -1 };
+      } */
+
       else if (sort === 'dateDesc') {
 
         // Sorting by date string
