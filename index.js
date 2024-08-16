@@ -41,13 +41,14 @@ async function run() {
 
 
 
+
+
+
     //  get all products and also set limit form pagination
     app.get('/products', async (req, res) => {
 
 
-
-
-      const { page = 1, limit = 8, search = '', sort = '' } = req.query;
+      const { page = 1, limit = 8, search = '', sort = '', category = '', brand = '' } = req.query;
 
       const pageNum = parseInt(page);
       const limitNum = parseInt(limit);
@@ -58,35 +59,29 @@ async function run() {
       const searchQuery = search ? { productName: { $regex: search, $options: 'i' } } : {};
 
 
-      // Determine sort order
+      // Filter product data depends on category and brand name
+      if (category) {
+        searchQuery.category = category;
+      }
+      if (brand) {
+        searchQuery.brandName = brand;
+      }
+
+
+
+
+      // for sorting data depends on price low to high and hight to low and newest date
       let sortProduct = {};
       if (sort === 'priceAsc') {
         sortProduct = { price: 1 };
       } else if (sort === 'priceDesc') {
         sortProduct = { price: -1 };
-      } /* else if (sort === 'dateDesc') {
-        sortProduct = { createdDate: -1 };
-      } */
+      } 
       else if (sort === 'dateDesc') {
-        // Sorting by date string
-        const products = await productCollection.find(searchQuery).toArray();
-
-        products.sort((a, b) => {
-          const dateA = a.createdDate.split('-').reverse().join('-'); // Convert "dd-mm-yyyy" to "yyyy-mm-dd"
-          const dateB = b.createdDate.split('-').reverse().join('-');
-          return new Date(dateB) - new Date(dateA);
-        });
-
-        const paginatedProducts = products.slice(skip, skip + limitNum);
-
-        res.send({
-          products: paginatedProducts,
-          totalPages: Math.ceil(products.length / limitNum),
-          currentPage: pageNum,
-        });
-
-        return;
+        sortProduct = { createdDate: -1 };
       }
+
+    
 
 
 
@@ -109,20 +104,7 @@ async function run() {
 
 
 
-    /*  const result = await productCollection.find().toArray();
-       res.send(result); */
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
