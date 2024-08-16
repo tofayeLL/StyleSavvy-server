@@ -47,26 +47,63 @@ async function run() {
 
 
 
-      const { page = 1, limit = 8, search = '' } = req.query;
+      const { page = 1, limit = 8, search = '', sort = '' } = req.query;
 
-    const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
-    const skip = (pageNum - 1) * limitNum;
+      const pageNum = parseInt(page);
+      const limitNum = parseInt(limit);
+      const skip = (pageNum - 1) * limitNum;
 
-    const searchQuery = search ? { productName: { $regex: search, $options: 'i' } } : {};
 
-    const products = await productCollection.find(searchQuery)
+      // for searching depends on product name
+      const searchQuery = search ? { productName: { $regex: search, $options: 'i' } } : {};
+
+
+      // Determine sort order
+      let sortProduct = {};
+      if (sort === 'priceAsc') {
+        sortProduct = { price: 1 };
+      } else if (sort === 'priceDesc') {
+        sortProduct = { price: -1 };
+      } /* else if (sort === 'dateDesc') {
+        sortProduct = { createdDate: -1 };
+      } */
+      else if (sort === 'dateDesc') {
+        // Sorting by date string
+        const products = await productCollection.find(searchQuery).toArray();
+
+        products.sort((a, b) => {
+          const dateA = a.createdDate.split('-').reverse().join('-'); // Convert "dd-mm-yyyy" to "yyyy-mm-dd"
+          const dateB = b.createdDate.split('-').reverse().join('-');
+          return new Date(dateB) - new Date(dateA);
+        });
+
+        const paginatedProducts = products.slice(skip, skip + limitNum);
+
+        res.send({
+          products: paginatedProducts,
+          totalPages: Math.ceil(products.length / limitNum),
+          currentPage: pageNum,
+        });
+
+        return;
+      }
+
+
+
+
+      const products = await productCollection.find(searchQuery)
+        .sort(sortProduct)
         .skip(skip)
         .limit(limitNum)
         .toArray();
 
-    const totalProducts = await productCollection.countDocuments(searchQuery);
+      const totalProducts = await productCollection.countDocuments(searchQuery);
 
-    res.send({
+      res.send({
         products,
         totalPages: Math.ceil(totalProducts / limitNum),
         currentPage: pageNum,
-    });
+      });
 
     })
 
