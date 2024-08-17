@@ -85,37 +85,9 @@ async function run() {
       } else if (sort === 'priceDesc') {
         sortProduct = { price: -1 };
       }
-      /* else if (sort === 'dateDesc') {
-        sortProduct = { createdDate: -1 };
-      } */
-
       else if (sort === 'dateDesc') {
-
-        // Sorting by date string
-        const products = await productCollection.find(searchQuery).toArray();
-
-        products.sort((a, b) => {
-
-          // Convert date "dd-mm-yyyy" to "yyyy-mm-dd"
-          const dateA = a.createdDate.split('-').reverse().join('-');
-
-          const dateB = b.createdDate.split('-').reverse().join('-');
-          return new Date(dateB) - new Date(dateA);
-        });
-
-        const paginatedProducts = products.slice(skip, skip + limitNum);
-
-        res.send({
-          products: paginatedProducts,
-          totalPages: Math.ceil(products.length / limitNum),
-          currentPage: pageNum,
-        });
-
-        return;
+        sortProduct = { createdDate: -1 };
       }
-
-
-
 
 
 
